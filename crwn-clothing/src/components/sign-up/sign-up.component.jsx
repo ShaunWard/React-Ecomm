@@ -34,7 +34,7 @@ class SignUp extends React.Component {
           .then((userCredential) => {
               console.log(userCredential)
             const user = userCredential.user;
-            createUserProfileDocument(user, { displayName })
+            createUserProfileDocument(user)
           })
           .then(() => {
             this.setState({
