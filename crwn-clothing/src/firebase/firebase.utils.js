@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDoc, doc, setDoc } from 'firebase/firestore';
 
 const firebaseApp = initializeApp({
     apiKey: "AIzaSyBjzhsyx07uL7QX2j0QX0YA5oMy62COiwg",
@@ -12,8 +12,32 @@ const firebaseApp = initializeApp({
     measurementId: "G-FZQ5K44TEV"
 });
 
+export const createUserProfileDocument = async (userAuth, additionalData) => {
+  if (!userAuth) return;
+
+  const userRef = doc(firestoreDB, "users", userAuth.uid);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    try {
+        const userRef = collection(firestoreDB, "users");
+
+        await setDoc(doc(userRef, userAuth.uid),{
+          displayName: userAuth.displayName,
+          email: userAuth.email,
+          createdAt: new Date(),
+          additionalData: '',
+        })
+      console.log("Document written with ID: ", userRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  }
+  return userRef;
+}
+
 export const auth = getAuth(firebaseApp);
-export const firestore = getFirestore(firebaseApp);
+export const firestoreDB = getFirestore(firebaseApp);
 
 const provider = new GoogleAuthProvider();
 
